@@ -1,4 +1,4 @@
-package com.demo.spring_security_jwt;
+package com.fis.deloitte.planOnboarding;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

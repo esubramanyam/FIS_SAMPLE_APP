@@ -1,4 +1,4 @@
-package com.demo.spring_security_jwt.controller;
+package com.fis.deloitte.planOnboarding.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
