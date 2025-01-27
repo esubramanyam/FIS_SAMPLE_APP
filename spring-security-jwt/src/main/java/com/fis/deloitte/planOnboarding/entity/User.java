@@ -12,6 +12,7 @@ import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -51,6 +52,7 @@ public class User implements UserDetails {
     @Size(min = 10, max = 10, message = "Contact number must not be 10 characters long")
     private String contactNo;
 
+    private LocalDateTime lastLogin;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

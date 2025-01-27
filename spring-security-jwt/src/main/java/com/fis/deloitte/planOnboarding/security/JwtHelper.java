@@ -1,8 +1,10 @@
 package com.fis.deloitte.planOnboarding.security;
 
+import com.fis.deloitte.planOnboarding.logout.Blacklist;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -14,9 +16,13 @@ import java.util.function.Function;
 @Component
 public class JwtHelper {
 
-    public static final long JWT_TOKEN_VALIDITY = 1*60*60;//hr*min*sec
+    //public static final long JWT_TOKEN_VALIDITY = 1*60*60;//hr*min*sec
+    public static final long JWT_TOKEN_VALIDITY = 1 * 60;
 
     private String secretKey = "afafafafaGHNTRTahsgdakhdgakdadyhbdxasbkagksagdxyhagsyuagxavshauyaHASKGXDADCGVAHDCVAJHCVJKCVSDKCAJCAHCA";
+
+    @Autowired
+    private Blacklist blacklist;
 
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
@@ -50,7 +56,7 @@ public class JwtHelper {
     }
  public Boolean validateToken(String token, UserDetails userDetails){
        final String username =getUsernameFromToken(token);
-       return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+       return (username.equals(userDetails.getUsername()) && !isTokenExpired(token) && !blacklist.isBlackListed(token));
  }
 }
 
