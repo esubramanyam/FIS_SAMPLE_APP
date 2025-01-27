@@ -36,6 +36,8 @@ public class UserServiceImpl implements UserService {
                         .email(user.getEmail())
                         .city(user.getCity())
                         .contactNo(user.getContactNo())
+                        .lastLoginTime(user.getLastLogin())
+                        .updatedDateTime(user.getLastLogin())
                         .build();
                 userDtos.add(userDto);
             }
