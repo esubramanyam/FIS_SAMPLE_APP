@@ -35,8 +35,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private final HandlerExceptionResolver handlerExceptionResolver;
 
-//    private final  customAuthenticationSuccessHandler;
-
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         logger.info("Attempting authentication...");
@@ -48,18 +46,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         try {
             if (requestHeader != null && requestHeader.startsWith("Bearer ")) {
                 token = requestHeader.substring(7);
-               // try {
                     username = jwtHelper.getUsernameFromToken(token);
-               /* } catch (IllegalArgumentException e) {
-                    logger.info("Illegal Argument while fetching the username!!");
-                } catch (ExpiredJwtException e) {
-                    logger.info("Given JWT token is expired!!");
-                } catch (MalformedJwtException e) {
-                    logger.info("Invalid Token!!");
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }*/
             } else {
                 logger.info("Invalid Header value!!");
                 throw new InvalidHeaderException("Invalid Header value!!");

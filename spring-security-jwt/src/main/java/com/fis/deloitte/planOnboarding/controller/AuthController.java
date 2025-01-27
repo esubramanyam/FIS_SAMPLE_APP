@@ -3,13 +3,13 @@ package com.fis.deloitte.planOnboarding.controller;
 
 import com.fis.deloitte.planOnboarding.dto.JwtReponse;
 import com.fis.deloitte.planOnboarding.dto.JwtRequest;
+import com.fis.deloitte.planOnboarding.dto.UserRequest;
 import com.fis.deloitte.planOnboarding.entity.User;
+import com.fis.deloitte.planOnboarding.exception.UserCreationException;
+import com.fis.deloitte.planOnboarding.exception.UserNotFoundException;
 import com.fis.deloitte.planOnboarding.logout.Blacklist;
 import com.fis.deloitte.planOnboarding.security.JwtHelper;
 import com.fis.deloitte.planOnboarding.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +24,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin
 public class AuthController {
 
     @Autowired
@@ -50,6 +50,7 @@ public class AuthController {
     @PostMapping("/login")
     @CrossOrigin//generate-token
     public ResponseEntity<JwtReponse> login(@RequestBody JwtRequest request){
+        try{
         this.doAuthenticate(request.getUsername(),request.getPassword());
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         String token =this.helper.generateToken(userDetails);
@@ -61,22 +62,35 @@ public class AuthController {
                 .lastLoginTime(lastLoginTime)
                 .updatedDateTime(lastLoginTime)
                 .build();
+        logger.info("Login successful for user:{}", request.getUsername());
         return new ResponseEntity<>(response, HttpStatus.OK);
+        }catch (Exception e){
+            logger.error("Login failed for user:{}.Error:{}",request.getUsername(),e.getMessage());
+            throw new UserNotFoundException(e.getMessage());
+        }
     }
 
     @CrossOrigin
     @PostMapping("/createUser")
-    public ResponseEntity<User> createUser(@RequestBody User user){
+    public ResponseEntity<User> createUser(@RequestBody @Valid UserRequest user) throws Exception {
 
-        User newUser=userService.createUser(user);
-        return ResponseEntity.status(201).body(newUser);
+        try {
+            User newUser = userService.createUser(user);
+            logger.info("User created successfully:{}", newUser.getUsername());
+            return ResponseEntity.status(201).body(newUser);
+        }catch(Exception e){
+            logger.error("User creation failed for:{}.Error:{}",user.getUsername(),e.getMessage());
+            throw new UserCreationException(e.getMessage());
+        }
     }
 
     private void doAuthenticate(String email, String password) {
         UsernamePasswordAuthenticationToken authentication =new UsernamePasswordAuthenticationToken(email,password);
         try{
             manager.authenticate(authentication);
+            logger.info("Authentication successful for user: {}", email);
         }catch(BadCredentialsException e){
+            logger.error("Authentication failed for user: {}. Invalid credentials.", email);
             throw new BadCredentialsException("Invalid Username or password !!");
         }
     }

@@ -42,22 +42,4 @@ public class SwaggerConfig {
                 .pathsToMatch("/**")
                 .build();
     }
-   /* private GroupedOpenApi publicApi(){
-
-    }*/
-    /*private org.springdoc.core.GroupedOpenApi createDefaultGroupedOpenApi(String groupName, String pathdToMatch){
-        return org.springdoc.core.GroupedOpenApi.builder()
-                .group(groupName)
-                .pathsToMatch(pathdToMatch)
-                .addOperationCustomizer(new OpenApiPreAuthoriizeCustomizer())
-                .build();
-    }*/
-   /* @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Your API Title")
-                        .version("1.0")
-                        .description("Your API Description"));
-    }*/
 }

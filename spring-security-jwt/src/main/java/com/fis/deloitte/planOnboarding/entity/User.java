@@ -5,10 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -23,6 +20,7 @@ import java.util.List;
 @ToString
 @Entity
 @Table(name = "users")
+@Builder
 public class User implements UserDetails {
 
     @Id
@@ -35,9 +33,10 @@ public class User implements UserDetails {
     @NotEmpty(message="Please enter name")
     @Size(min=2,max=50,message="Name must be more than 2 characters long")
     private String username;
+    //MethodArgumentNotValidException
 
-   // @NotEmpty(message="Please enter your password")
-   // @Size(min=5,max=15,message="Password must be more than 5 characters long")
+    @NotEmpty(message="Please enter your password")
+    @Size(min=5,message="Password must be more than 5 characters long")
     private String password;
 
     @Email(message="Invalid email format")
@@ -49,7 +48,7 @@ public class User implements UserDetails {
     private String city;
 
     @NotEmpty(message = "Please enter contact number")
-    @Size(min = 10, max = 10, message = "Contact number must not be 10 characters long")
+    @Size(min = 10, max = 10, message = "Contact number must be 10 characters long")
     private String contactNo;
 
     private LocalDateTime lastLogin;

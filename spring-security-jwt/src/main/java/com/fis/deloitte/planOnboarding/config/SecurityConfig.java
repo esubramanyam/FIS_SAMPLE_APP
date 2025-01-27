@@ -8,6 +8,8 @@ import com.fis.deloitte.planOnboarding.service.impl.CustomUserDetailService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +49,9 @@ public class SecurityConfig {
     @Qualifier("handlerExceptionResolver")
     private HandlerExceptionResolver handlerExceptionResolver;
 
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+
+
     private static final String[] EXCLUDED_PATTERNS={
             "/auth/**",
             "/v3/api-docs/**",
@@ -61,24 +66,30 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+        logger.info("Configuring HttpSecurity...");
+        try{
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(
-                                //EXCLUDED_PATTERNS
-                                "/auth/**","/swagger-ui/index.html",
-                                      "/swagger-ui/**", "/v3/api-docs","/api-docs/**","/v3/api-docs/**"
-                                     //   "/swagger-ui/index.html","/v3/api-docs/**","/swagger-ui/**"
-                                ).permitAll()
-                                .anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> {
+                    logger.info("Setting authorization rules...");
+                    auth.requestMatchers(
+                                    //EXCLUDED_PATTERNS
+                                    "/auth/**", "/swagger-ui/index.html",
+                                    "/swagger-ui/**", "/v3/api-docs", "/api-docs/**", "/v3/api-docs/**"
+                            ).permitAll()
+                            .anyRequest().authenticated();
+                })
                 .exceptionHandling(exception -> {
+                    logger.info("Configuring exception handling...");
                     exception.authenticationEntryPoint(point);
                 })
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(session -> {
+                    logger.info("Setting session management policy...");
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                });
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtHelper, userDetailService,handlerExceptionResolver
-                //             , new CustomAuthenticationSuccessHandler(userRepository)
-        );
+        logger.info("Adding JWT authentication filter...");
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtHelper, userDetailService,handlerExceptionResolver);
         filter.setAuthenticationManager(authenticationManager(http));
         filter.setFilterProcessesUrl("/user/users");
         http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
@@ -87,26 +98,48 @@ public class SecurityConfig {
         filter2.setAuthenticationManager(authenticationManager(http));
         filter2.setFilterProcessesUrl("/user/logout");
         http.addFilterBefore(filter2, UsernamePasswordAuthenticationFilter.class);
-
+        logger.info("HttpSecurity configuration completed.");
         return http.build();
+    } catch (Exception e) {
+        logger.error("Error configuring HttpSecurity: {}", e.getMessage());
+        throw e;
+    }
     }
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
+        logger.info("Configuring DaoAuthenticationProvider...");
+        try{
         DaoAuthenticationProvider provider=new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailService);
         provider.setPasswordEncoder(passwordEncoder());
+        logger.info("DaoAuthenticationProvider configured.");
         return provider;
+    } catch (Exception e) {
+        logger.error("Error configuring DaoAuthenticationProvider: {}", e.getMessage());
+        throw e;
+    }
     }
     @Bean
     public PasswordEncoder passwordEncoder() {
+        try{
+        logger.info("Configuring PasswordEncoder...");
         return new BCryptPasswordEncoder();
+    } catch (Exception e) {
+        logger.error("Error configuring PasswordEncoder: {}", e.getMessage());
+        throw e;
+    }
     }
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        try{
         AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
         builder.userDetailsService(userDetailService);
         return builder.build();
+        } catch (Exception e) {
+            logger.error("Error configuring AuthenticationManager: {}", e.getMessage());
+            throw e;
+        }
     }
 }

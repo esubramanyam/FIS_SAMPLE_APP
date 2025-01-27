@@ -1,6 +1,7 @@
 package com.fis.deloitte.planOnboarding.service;
 
 import com.fis.deloitte.planOnboarding.dto.UserDto;
+import com.fis.deloitte.planOnboarding.dto.UserRequest;
 import com.fis.deloitte.planOnboarding.entity.User;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.util.List;
 public interface UserService {
 
     public List<UserDto> getUsers();
-    public User createUser(User user);
+    public User createUser(UserRequest user) throws Exception;
     public LocalDateTime getLastLoginTime(String username) ;
 
     void saveLastLogin(String username);
