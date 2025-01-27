@@ -46,10 +46,4 @@ public class UserController {
         blacklist.blacklistToken(token);
         return  new ResponseEntity<>("You have successfully logged out!!", HttpStatus.OK);
     }
-
-    @CrossOrigin
-    @GetMapping("/currentUser")
-    public ResponseEntity<String>  getLoggedInUser(Principal principal) {
-        return new ResponseEntity<>( principal.getName(), HttpStatus.OK);
-    }
 }
