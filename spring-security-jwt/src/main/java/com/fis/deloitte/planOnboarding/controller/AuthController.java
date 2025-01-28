@@ -66,7 +66,11 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.OK);
         }catch (Exception e){
             logger.error("Login failed for user:{}.Error:{}",request.getUsername(),e.getMessage());
-            throw new UserNotFoundException(e.getMessage());
+            if(e instanceof BadCredentialsException){
+                throw new BadCredentialsException(e.getMessage());
+            }else {
+                throw new UserNotFoundException(e.getMessage());
+            }
         }
     }
 
